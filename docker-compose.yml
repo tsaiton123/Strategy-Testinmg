@@ -1,0 +1,19 @@
+version: "3.9"
+services:
+  # Optional infra (not used by this minimal starter, but here for future expansion)
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_USER: quant
+      POSTGRES_DB: quantdb
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+
+volumes:
+  pgdata:
