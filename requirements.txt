@@ -7,3 +7,6 @@ fastapi>=0.111
 uvicorn>=0.30
 streamlit>=1.36
 matplotlib>=3.8
+gymnasium==0.29.1
+stable-baselines3>=2.3.0
+torch

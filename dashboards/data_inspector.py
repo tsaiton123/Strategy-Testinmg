@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import pyarrow.parquet as pq
 import matplotlib.pyplot as plt
+from dashboards.utils import get_parquet_files, format_file_display
 
 st.set_page_config(page_title="Data Inspector (OHLCV Parquet)", layout="wide")
 st.title("Data Inspector — OHLCV Parquet")
@@ -51,8 +52,29 @@ def build_complete_index(ts_min: pd.Timestamp, ts_max: pd.Timestamp, freq: str) 
     return pd.date_range(ts_min, ts_max, freq=freq, tz="UTC")
 
 # ----------------- UI -----------------
-parquet_path = st.sidebar.text_input("Parquet data path", "data/coinbase_BTCUSD_5m.parquet")  # default example
-run = st.sidebar.button("Analyze")
+st.sidebar.subheader("📁 Data Selection")
+
+# Auto-detect parquet files
+parquet_files = get_parquet_files()
+if parquet_files:
+    # Create options with file info
+    file_options = [format_file_display(f) for f in parquet_files]
+    selected_display = st.sidebar.selectbox(
+        "Select parquet file:",
+        file_options,
+        help="Auto-detected parquet files from data/ directory"
+    )
+    # Get the actual file path
+    selected_idx = file_options.index(selected_display)
+    parquet_path = parquet_files[selected_idx]
+
+    # Show selected file info
+    st.sidebar.info(f"Selected: {os.path.basename(parquet_path)}")
+else:
+    st.sidebar.warning("No parquet files found in data/ directory")
+    parquet_path = st.sidebar.text_input("Manual parquet path:", "data/coinbase_BTCUSD_5m.parquet")
+
+run = st.sidebar.button("🔍 Analyze Data")
 
 if run:
     if not os.path.exists(parquet_path):
