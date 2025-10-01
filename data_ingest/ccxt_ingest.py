@@ -4,6 +4,7 @@ from typing import List
 import pandas as pd
 import ccxt
 import pyarrow as pa
+import os
 import pyarrow.parquet as pq
 from ccxt.base.errors import ExchangeNotAvailable, BadSymbol
 
@@ -92,7 +93,9 @@ def main():
     df = df.sort_values('ts').drop_duplicates(subset=['ts'])
     assert df['ts'].is_monotonic_increasing, 'Timestamps not monotonic'
     assert (df[['open','high','low','close','volume']] >= 0).all().all(), 'Negative values found'
-
+    out_dir = os.path.dirname(args.out)
+    if out_dir and not os.path.exists(out_dir):
+        os.makedirs(out_dir, exist_ok=True)
     table = pa.Table.from_pandas(df)
     pq.write_table(table, args.out)
 
