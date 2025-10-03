@@ -3,7 +3,7 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 import pandas as pd
-from .utils import build_features, to_numpy_windowed, align_prices_for_obs, normalize_features, select_stable_features
+from utils import build_features, to_numpy_windowed, align_prices_for_obs, normalize_features, select_stable_features
 
 
 class SingleAssetTradingEnv(gym.Env):
@@ -139,8 +139,18 @@ class SingleAssetTradingEnv(gym.Env):
 
         obs = np.zeros_like(self.obs_3d[0].reshape(-1), dtype=np.float32) if terminated else self.obs_3d[self._t].reshape(-1).astype(np.float32)
 
-        info = {"position": self._pos, "equity": self.balance,
-                "daily_loss": daily_loss, "total_loss": total_loss, "violated": violated}
+        info = {
+            "timestamp": self.px.index[self._t] if self._t < len(self.px) else None,
+            "action": float(action if not self._discrete else target),
+            "position": self._pos,
+            "portfolio_return": portfolio_return,
+            "cost": cost,
+            "equity": self.balance,
+            "daily_loss": daily_loss,
+            "total_loss": total_loss,
+            "violated": violated
+        }
+
 
         return obs, float(reward), terminated, truncated, info
 

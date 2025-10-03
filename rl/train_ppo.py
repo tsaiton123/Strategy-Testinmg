@@ -88,11 +88,20 @@ def train_rl(df, timesteps=500_000, window=64, action_mode="box",
     obs = eval_env.reset()
     pos_hist, returns, rewards = [], [], []
     done = [False]
+    trade_log = []
 
     while not done[0]:
         action, _ = model.predict(obs, deterministic=True)
         old_pos = getattr(eval_env.envs[0], '_pos', 0.0)
         obs, reward, done, info = eval_env.step(action)
+        trade_log.append({
+        "timestamp": info[0].get("timestamp"),
+        "action": float(action[0]),
+        "position": info[0].get("position"),
+        "portfolio_return": info[0].get("portfolio_return"),
+        "cost": info[0].get("cost"),
+        "equity": info[0].get("equity")
+        })
         current_pos = info[0].get("position", 0.0)
         pos_hist.append(current_pos)
         rewards.append(reward[0])
@@ -104,7 +113,10 @@ def train_rl(df, timesteps=500_000, window=64, action_mode="box",
             cost = eval_env.envs[0].cost * turnover
             portfolio_return = old_pos * market_return - cost
             returns.append(portfolio_return)
-
+    # 存交易紀錄
+    trade_df = pd.DataFrame(trade_log)
+    trade_df.to_csv(os.path.join(out_dir, "ppo_trades.csv"), index=False)
+    trade_df.to_parquet(os.path.join(out_dir, "ppo_trades.parquet"))
     # Equity curve
     eq = (1 + pd.Series(returns)).cumprod() if returns else pd.Series([1.0])
     eq_path = os.path.join(out_dir, "ppo_equity.png")
