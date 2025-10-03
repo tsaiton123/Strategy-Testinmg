@@ -60,7 +60,7 @@ def train_rl(df, timesteps=500_000, window=64, action_mode="box",
     os.makedirs(out_dir, exist_ok=True)
 
     # Training environment
-    env = DummyVecEnv([make_env(df, window, action_mode, max_leverage, cost_bps)] * 4)
+    env = DummyVecEnv([make_env(df, window, action_mode, max_leverage, cost_bps)] * 8)
     env = VecNormalize(env, norm_obs=True, norm_reward=False, clip_obs=10.0, gamma=0.995)
 
     model = PPO("MlpPolicy", env,
