@@ -9,6 +9,10 @@
 - 對比手續費對策略表現的影響
 
 ## 2. 資料與特徵
+- 訓練指令:
+```bash
+    python -m rl.train_ppo     --data data/daytrading_5m.parquet     --timesteps 50000     --out artifacts/rl_phase1_daytrading       --cost_bps 5     --action_mode box
+```
 - 資料來源：`data/daytrading_5m.parquet`
 - 時間序列：5 分鐘 K 線
 - 特徵工程：
@@ -63,16 +67,4 @@
 - 違規次數：8
 - Equity 曲線：整體呈穩定正向
 
-```json
-{
-  "timesteps": 50000,
-  "CAGR": 0.0644,
-  "Sharpe": 1.118,
-  "MaxDD": -0.0582,
-  "Total_Return": 0.0154,
-  "Avg_Return": 8.83e-07,
-  "Vol": 0.000213,
-  "Constraint_Violations": 8
-}
-
-## 7. 
+## 7.1 不同Cost(手續費)比較
